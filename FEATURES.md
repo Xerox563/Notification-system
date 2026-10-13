@@ -21,7 +21,7 @@ Supports email, SMS, and push, with retries, idempotency, priorities, scheduling
 - [x] **Priority queues:** high (OTP/alerts), normal, and low (marketing) queues per channel. Workers use weighted polling so low priority never starves.
 - [x] **Circuit breaker with fallback:** closed/open/half-open states around each provider. When the primary email or SMS provider is failing, traffic routes to a second provider.
 - [x] **Scheduled notifications:** a `send_at` field, backed by a Redis sorted set and a scheduler loop that moves due jobs onto the live queues.
-- [ ] **Bulk fan-out:** `POST /notifications/bulk` takes one event and a list or segment of users (up to 100k). It splits them into chunked batches, processes them as background jobs, and tracks progress via `GET /bulk/{id}`.
+- [x] **Bulk fan-out:** `POST /notifications/bulk` takes one event and a list or segment of users (up to 100k). It splits them into chunked batches, processes them as background jobs, and tracks progress via `GET /bulk/{id}`.
 
 ### Supporting features
 - [x] **Observability:** structured JSON logs, Prometheus `/metrics` (queue depth, send rate, failure rate, retries, breaker state), and `/health`.
