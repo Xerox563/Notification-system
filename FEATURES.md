@@ -8,25 +8,25 @@ Supports email, SMS, and push, with retries, idempotency, priorities, scheduling
 ## 1. Features
 
 ### Must have
-- [ ] **API:** `POST /notifications` accepts a user, channel, template, and payload, and returns `202 Accepted` right away with a notification id.
-- [ ] **Async processing:** a Redis-backed queue with separate hand-rolled workers per channel (email, SMS, push). SMS and push providers are mocked, with a configurable failure rate for testing. Email goes through real SMTP (Mailhog locally).
-- [ ] **Retries:** exponential backoff with jitter, a max attempt limit, and a dead-letter queue, plus a DLQ replay script/endpoint.
-- [ ] **Idempotency:** an `Idempotency-Key` header stored in Redis (with a unique constraint in Postgres as backup), so retries return the original response and never send duplicates.
-- [ ] **User preferences:** opt-in/out per channel, plus quiet hours with timezone support. Notifications that fall in quiet hours are deferred, not dropped.
-- [ ] **Templates:** Jinja2 templates with variables, stored in Postgres, with CRUD endpoints and validation of required variables.
-- [ ] **Status tracking:** `queued -> sent -> delivered/failed`, exposed via `GET /notifications/{id}`, with the full per-attempt history (`delivery_attempts` table).
-- [ ] **Rate limiting:** a token bucket in Redis (Lua for atomicity), applied per user and per provider.
+- [x] **API:** `POST /notifications` accepts a user, channel, template, and payload, and returns `202 Accepted` right away with a notification id.
+- [x] **Async processing:** a Redis-backed queue with separate hand-rolled workers per channel (email, SMS, push). SMS and push providers are mocked, with a configurable failure rate for testing. Email goes through real SMTP (Mailhog locally).
+- [x] **Retries:** exponential backoff with jitter, a max attempt limit, and a dead-letter queue, plus a DLQ replay script/endpoint.
+- [x] **Idempotency:** an `Idempotency-Key` header stored in Redis (with a unique constraint in Postgres as backup), so retries return the original response and never send duplicates.
+- [x] **User preferences:** opt-in/out per channel, plus quiet hours with timezone support. Notifications that fall in quiet hours are deferred, not dropped.
+- [x] **Templates:** Jinja2 templates with variables, stored in Postgres, with CRUD endpoints and validation of required variables.
+- [x] **Status tracking:** `queued -> sent -> delivered/failed`, exposed via `GET /notifications/{id}`, with the full per-attempt history (`delivery_attempts` table).
+- [x] **Rate limiting:** a token bucket in Redis (Lua for atomicity), applied per user and per provider.
 
 ### Nice to have (all included)
-- [ ] **Priority queues:** high (OTP/alerts), normal, and low (marketing) queues per channel. Workers use weighted polling so low priority never starves.
-- [ ] **Circuit breaker with fallback:** closed/open/half-open states around each provider. When the primary email or SMS provider is failing, traffic routes to a second provider.
-- [ ] **Scheduled notifications:** a `send_at` field, backed by a Redis sorted set and a scheduler loop that moves due jobs onto the live queues.
+- [x] **Priority queues:** high (OTP/alerts), normal, and low (marketing) queues per channel. Workers use weighted polling so low priority never starves.
+- [x] **Circuit breaker with fallback:** closed/open/half-open states around each provider. When the primary email or SMS provider is failing, traffic routes to a second provider.
+- [x] **Scheduled notifications:** a `send_at` field, backed by a Redis sorted set and a scheduler loop that moves due jobs onto the live queues.
 - [ ] **Bulk fan-out:** `POST /notifications/bulk` takes one event and a list or segment of users (up to 100k). It splits them into chunked batches, processes them as background jobs, and tracks progress via `GET /bulk/{id}`.
 
 ### Supporting features
-- [ ] **Observability:** structured JSON logs, Prometheus `/metrics` (queue depth, send rate, failure rate, retries, breaker state), and `/health`.
-- [ ] **Graceful shutdown:** workers finish in-flight jobs and re-queue anything unfinished.
-- [ ] **Crash safety:** a visibility-timeout / processing-list pattern, so a job isn't lost if a worker dies mid-send.
+- [x] **Observability:** structured JSON logs, Prometheus `/metrics` (queue depth, send rate, failure rate, retries, breaker state), and `/health`.
+- [x] **Graceful shutdown:** workers finish in-flight jobs and re-queue anything unfinished.
+- [x] **Crash safety:** a visibility-timeout / processing-list pattern, so a job isn't lost if a worker dies mid-send.
 - [ ] **Load testing:** Locust scenarios, with results recorded in the README.
 - [ ] **CI:** GitHub Actions running ruff and a Docker build.
 - [ ] **Design doc:** requirements, capacity estimates, architecture diagram, trade-offs, failure scenarios, and a 100x scaling plan.
