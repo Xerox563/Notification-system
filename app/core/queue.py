@@ -130,9 +130,9 @@ class RedisQueue:
         depths["dlq"] = await self.redis.llen(self.dlq_key(channel))
         return depths
 
-    async def replay_dlq(self, channel: str, limit: int = 1000) -> int:
-        moved = 0
-        while moved < limit:
+    async def replay_dlq(self, channel: str, limit: int = 1000) -> list[str]:
+        moved: list[str] = []
+        while len(moved) < limit:
             entry = await self.redis.lpop(self.dlq_key(channel))
             if entry is None:
                 break
@@ -140,5 +140,5 @@ class RedisQueue:
             job = json.loads(body)
             job["attempt"] = 0
             await self.redis.rpush(self.queue_key(channel, priority), encode(job))
-            moved += 1
+            moved.append(job["id"])
         return moved

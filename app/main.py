@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from redis.asyncio import Redis
 
-from app.api import health, notifications, templates, users
+from app.api import admin, health, notifications, templates, users
 from app.config import get_settings
 from app.core.idempotency import IdempotencyStore
 from app.core.queue import RedisQueue
@@ -39,7 +39,7 @@ def create_app() -> FastAPI:
     async def service_error_handler(request: Request, exc: ServiceError):
         return JSONResponse({"detail": exc.message}, status_code=STATUS_FOR_ERROR.get(type(exc), 400))
 
-    for module in (users, templates, notifications, health):
+    for module in (users, templates, notifications, admin, health):
         app.include_router(module.router)
     return app
 
