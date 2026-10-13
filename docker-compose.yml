@@ -1,0 +1,102 @@
+x-app: &app
+  build: .
+  environment: &env
+    DATABASE_URL: postgresql+asyncpg://notify:notify@postgres:5432/notify
+    REDIS_URL: redis://redis:6379/0
+    SMTP_HOST: mailhog
+    SMTP_PORT: "1025"
+    SMS_FAILURE_RATE: "0.2"
+    PUSH_FAILURE_RATE: "0.1"
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: notify
+      POSTGRES_PASSWORD: notify
+      POSTGRES_DB: notify
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notify"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
+
+  api:
+    <<: *app
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  worker-email:
+    <<: *app
+    command: python -m app.workers.email_worker
+    environment:
+      <<: *env
+      METRICS_PORT: "9101"
+    ports:
+      - "9101:9101"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  worker-sms:
+    <<: *app
+    command: python -m app.workers.sms_worker
+    environment:
+      <<: *env
+      METRICS_PORT: "9102"
+    ports:
+      - "9102:9102"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  worker-push:
+    <<: *app
+    command: python -m app.workers.push_worker
+    environment:
+      <<: *env
+      METRICS_PORT: "9103"
+    ports:
+      - "9103:9103"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  worker-bulk:
+    <<: *app
+    command: python -m app.workers.bulk_worker
+    depends_on:
+      api:
+        condition: service_healthy
+
+  scheduler:
+    <<: *app
+    command: python -m app.core.scheduler
+
+volumes:
+  pgdata:
