@@ -1,0 +1,19 @@
+# Local-only tests (not pushed)
+tests/
+.pytest_cache/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.egg-info/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Misc
+.idea/
+.vscode/
+*.log
