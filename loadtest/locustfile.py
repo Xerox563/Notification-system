@@ -30,7 +30,12 @@ class NotificationUser(HttpUser):
         for channel, name in TEMPLATES.items():
             self.client.post(
                 "/templates",
-                json={"name": name, "channel": channel, "subject": "Hello {{ name }}", "body": "Code {{ code }}"},
+                json={
+                    "name": name,
+                    "channel": channel,
+                    "subject": "Hello {{ name }}",
+                    "body": "Code {{ code }}",
+                },
                 name="/templates",
             )
 
