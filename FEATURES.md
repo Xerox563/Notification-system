@@ -27,9 +27,9 @@ Supports email, SMS, and push, with retries, idempotency, priorities, scheduling
 - [x] **Observability:** structured JSON logs, Prometheus `/metrics` (queue depth, send rate, failure rate, retries, breaker state), and `/health`.
 - [x] **Graceful shutdown:** workers finish in-flight jobs and re-queue anything unfinished.
 - [x] **Crash safety:** a visibility-timeout / processing-list pattern, so a job isn't lost if a worker dies mid-send.
-- [ ] **Load testing:** Locust scenarios, with results recorded in the README.
-- [ ] **CI:** GitHub Actions running ruff and a Docker build.
-- [ ] **Design doc:** requirements, capacity estimates, architecture diagram, trade-offs, failure scenarios, and a 100x scaling plan.
+- [x] **Load testing:** Locust scenarios are in `loadtest/`. Numbers are not recorded yet, run it and add them to the README.
+- [x] **CI:** GitHub Actions running ruff and a Docker build.
+- [x] **Design doc:** requirements, capacity estimates, architecture diagram, trade-offs, failure scenarios, and a 100x scaling plan.
 
 ### Skip
 Real SMS/push integrations, multi-region, and Kafka.
