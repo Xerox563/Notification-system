@@ -22,7 +22,9 @@ async def resolve_audience(session: AsyncSession, data: BulkCreate, limit: int) 
     return user_ids
 
 
-async def start_bulk(session: AsyncSession, queue: RedisQueue, data: BulkCreate, settings: Settings) -> BulkJob:
+async def start_bulk(
+    session: AsyncSession, queue: RedisQueue, data: BulkCreate, settings: Settings
+) -> BulkJob:
     template = await find_template(session, data.template)
     if template.channel != data.channel.value:
         raise InvalidRequest("template belongs to a different channel")

@@ -31,7 +31,9 @@ async def set_preference(
     user_id: str, channel: Channel, data: PreferenceIn, session: AsyncSession = Depends(get_session)
 ):
     pref = await preference_service.set_preference(session, user_id, channel.value, data)
-    return PreferenceOut(channel=channel, enabled=pref.enabled, quiet_start=pref.quiet_start, quiet_end=pref.quiet_end)
+    return PreferenceOut(
+        channel=channel, enabled=pref.enabled, quiet_start=pref.quiet_start, quiet_end=pref.quiet_end
+    )
 
 
 @router.get("/{user_id}/preferences", response_model=list[PreferenceOut])

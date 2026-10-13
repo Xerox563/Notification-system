@@ -65,7 +65,8 @@ class BulkWorker:
         chunk = reserved.job
         attempt = chunk["attempt"]
         if should_retry(attempt, self.settings.max_attempts):
-            delay = backoff_delay(attempt, self.settings.backoff_base_seconds, self.settings.backoff_cap_seconds)
+            s = self.settings
+            delay = backoff_delay(attempt, s.backoff_base_seconds, s.backoff_cap_seconds)
             await self.queue.retry(reserved, {**chunk, "attempt": attempt + 1}, delay)
         else:
             await self.queue.dead_letter(reserved, chunk)
