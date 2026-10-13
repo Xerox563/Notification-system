@@ -47,45 +47,55 @@ notification-system/
 ├── app/
 │   ├── main.py                  # FastAPI app, startup/shutdown
 │   ├── config.py                # env settings (pydantic-settings)
+│   ├── constants.py             # channels, priorities, statuses
+│   ├── metrics.py               # Prometheus counters and gauges
+│   ├── logging_config.py        # JSON logs
 │   ├── api/
-│   │   ├── notifications.py     # POST/GET notifications, bulk
-│   │   ├── preferences.py       # user channel opt-in/out, quiet hours
+│   │   ├── notifications.py     # send, status, list, delivery receipt
+│   │   ├── bulk.py              # bulk send and progress
+│   │   ├── users.py             # users and channel preferences
 │   │   ├── templates.py         # template CRUD
-│   │   └── health.py            # /health, /metrics
+│   │   ├── admin.py             # queue depths, DLQ replay
+│   │   ├── health.py            # /health, /metrics
+│   │   └── deps.py              # shared dependencies
 │   ├── core/
-│   │   ├── queue.py             # Queue interface + Redis impl (priority, delayed)
-│   │   ├── scheduler.py         # moves due scheduled jobs to live queues
+│   │   ├── queue.py             # Redis queue: priorities, delay, DLQ, reclaim
+│   │   ├── scheduler.py         # moves due jobs, reclaims stuck jobs
 │   │   ├── retry.py             # backoff + jitter
 │   │   ├── rate_limiter.py      # token bucket (Redis + Lua)
 │   │   ├── idempotency.py       # Idempotency-Key handling
-│   │   └── circuit_breaker.py   # closed/open/half-open
+│   │   ├── circuit_breaker.py   # closed/open/half-open
+│   │   └── process.py           # signal handling for graceful stop
 │   ├── providers/
 │   │   ├── base.py              # Provider interface
-│   │   ├── email_smtp.py        # real SMTP (Mailhog)
-│   │   ├── email_backup.py      # fallback provider
-│   │   ├── sms_mock.py          # mock, configurable failure rate
-│   │   └── push_mock.py
+│   │   ├── email_smtp.py        # real SMTP (Mailhog), primary and backup
+│   │   ├── mock.py              # SMS and push mocks with failure rate
+│   │   └── registry.py          # primary and backup per channel
 │   ├── services/
 │   │   ├── notification_service.py   # validate, check prefs, render, enqueue
 │   │   ├── bulk_service.py           # chunked fan-out
 │   │   ├── preference_service.py
-│   │   └── template_service.py       # Jinja2 rendering
+│   │   ├── template_service.py       # Jinja2 rendering
+│   │   ├── quiet_hours.py            # quiet window maths
+│   │   └── errors.py
 │   ├── workers/
-│   │   ├── worker.py            # generic consumer loop
+│   │   ├── worker.py            # delivery consumer loop
+│   │   ├── runner.py            # wiring and startup
 │   │   ├── email_worker.py
 │   │   ├── sms_worker.py
-│   │   └── push_worker.py
+│   │   ├── push_worker.py
+│   │   └── bulk_worker.py
 │   ├── models/                  # SQLAlchemy models
 │   ├── schemas/                 # Pydantic schemas
 │   └── db/                      # session and table creation
 ├── loadtest/locustfile.py
 ├── docs/
-│   ├── design.md                # requirements, estimates, trade-offs
-│   └── architecture.png
+│   └── design.md                # requirements, estimates, diagram, trade-offs
 ├── docker-compose.yml           # api, workers, scheduler, postgres, redis, mailhog
 ├── Dockerfile
 ├── .github/workflows/ci.yml
 ├── pyproject.toml
+├── requirements.txt
 ├── .gitignore                   # tests/ is ignored (local only)
 └── README.md
 ```
